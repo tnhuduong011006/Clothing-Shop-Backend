@@ -1,38 +1,36 @@
 const { ObjectId } = require("mongodb")
 
-class ContactService {
+class TypeService {
     constructor(client) {
-        this.Contact = client.db().collection("contacts")
+        this.Type = client.db().collection("types")
     }
     // Định nghĩa các phương thức truy xuất csdl sử dụng mongodb API
     // create
-    extractConactData(payload) {
-        const contact = {
-            name: payload.name,
-            email: payload.email,
-            address: payload.address,
-            phone: payload.phone,
-            favorite: payload.favorite,
+    extractTypeData(payload) {
+        const type = {
+            ten: payload.ten
         };
         // Xóa các trường undefined, Object không có s
-        Object.keys(contact).forEach(
-            (key) => contact[key] === undefined && delete contact[key]
+        Object.keys(type).forEach(
+            (key) => type[key] === undefined && delete type[key]
         )
-        return contact;
+        return type;
     }
 
     async create(payload) {
-        const contact = this.extractConactData(payload)
-        const result = await this.Contact.findOneAndUpdate(
-            contact,
-            { $set: { favorite: contact.favorite === true }},
-            { returnDocument: "after", upsert: true}
+        const type = this.extractTypeData(payload)
+		await this.Type.insertOne(
+            type
         );
-        return result.value;
+        const result = await this.Type.findOne(
+            type
+        );
+		
+        return result;
     }
 
     async find(filter) {
-        const cursor = await this.Contact.find(filter)
+        const cursor = await this.Type.find(filter)
         return await cursor.toArray()
     }
 
@@ -43,7 +41,7 @@ class ContactService {
     }
 
     async findById(id) {
-        return await this.Contact.findOne({
+        return await this.Type.findOne({
             _id : ObjectId.isValid(id) ? new ObjectId(id) : null
         });
     }
@@ -52,8 +50,8 @@ class ContactService {
         const filter = {
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null
         };
-        const update = this.extractConactData(payload);
-        const result = await this.Contact.findOneAndUpdate(
+        const update = this.extractTypeData(payload);
+        const result = await this.Type.findOneAndUpdate(
             filter,
             { $set: update},
             {returnDocument: "after"}
@@ -62,7 +60,7 @@ class ContactService {
     }
 
     async delete(id) {
-        const result = await this.Contact.findOneAndDelete({
+        const result = await this.Type.findOneAndDelete({
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         });
         return result.value;
@@ -73,10 +71,10 @@ class ContactService {
     }
 
     async deleteAll() {
-        const result = await this.Contact.deleteMany({});
+        const result = await this.Type.deleteMany({});
         return result.deletedCount;
     }
 
 }
 
-module.exports = ContactService;
+module.exports = TypeService;
