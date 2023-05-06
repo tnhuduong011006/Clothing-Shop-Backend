@@ -1,11 +1,10 @@
 const ProductService = require("../services/product.service");
 const MongoDB = require("../utils/mongodb.util");
 const ApiError = require("../api-error");
-const { ObjectId } = require("mongodb")
 
 // Tạo và lưu một liên hệ mới
 exports.create = async (req, res, next) => {
-    if (!req.body?.ten ) {
+    if (!req.body?.ten) {
         return next(new ApiError(400, "Name can not be empty"))
     }
 
@@ -25,26 +24,26 @@ exports.findAll = async (req, res, next) => {
 
     try {
         const productService = new ProductService(MongoDB.client)
-		const name = req.query.name
-		const typeid = req.query.typeid
-		const typename = req.query.typename
-		const textsearch = req.query.textsearch
-		
+        const name = req.query.name
+        const typeid = req.query.typeid
+        const typename = req.query.typename
+        const textsearch = req.query.textsearch
+
         if (name) {
-            documents = await productService.find({ten:name})
+            documents = await productService.find({ ten: name })
         } else
-		if (textsearch) {
-            documents = await productService.find({$text : {$search : textsearch}})
-        } else
-		if (typename) {
-            documents = await productService.find({'loai.ten' : typename})
-        } else
-		if (typeid) {
-            documents = await productService.find({'loai._id' : ObjectId.isValid(typeid) ? new ObjectId(typeid) : null})
-        }else {
-			documents = await productService.find({})
-		}
-		
+            if (textsearch) {
+                documents = await productService.findIndex(textsearch)
+            } else
+                if (typename) {
+                    documents = await productService.find({ 'loai.ten': typename })
+                } else
+                    if (typeid) {
+                        documents = await productService.find({ 'loai._id': typeid })
+                    } else {
+                        documents = await productService.find({})
+                    }
+
     } catch (error) {
         return next(
             new ApiError(500, "An error occurred while retrieving products")
@@ -55,13 +54,13 @@ exports.findAll = async (req, res, next) => {
 };
 
 exports.deleteAllByType = async (req, res, next) => {
-	let count = 0;
+    let count = 0;
     try {
         const productService = new ProductService(MongoDB.client)
-		const typeid = req.query.typeid
-		
-        count = await productService.deleteAll({'loai._id' : ObjectId.isValid(typeid) ? new ObjectId(typeid) : null})
-		
+        const typeid = req.query.typeid
+
+        count = await productService.deleteAll({ 'loai._id': typeid })
+
     } catch (error) {
         return next(
             new ApiError(
@@ -78,7 +77,7 @@ exports.findOne = async (req, res, next) => {
     try {
         const productService = new ProductService(MongoDB.client)
         const document = await productService.findById(req.params.id)
-        if(!document) {
+        if (!document) {
             return next(new ApiError(404, "Product not found"))
         }
         return res.send(document)
@@ -89,8 +88,8 @@ exports.findOne = async (req, res, next) => {
     }
 }
 
-exports.update = async(req, res, next) => {
-    if (Object.keys(req.body).length===0) {
+exports.update = async (req, res, next) => {
+    if (Object.keys(req.body).length === 0) {
         return next(new ApiError(400, "Data to update can not be empty"));
     }
 
@@ -103,7 +102,7 @@ exports.update = async(req, res, next) => {
         if (!document) {
             return next(new ApiError(404, "Product not found"));
         }
-        return res.send({message: "Product was updated successfully"});
+        return res.send({ message: "Product was updated successfully" });
     } catch (error) {
         return next(
             new ApiError(500, `Error updating product with id=${req.params.id}`)
@@ -115,7 +114,7 @@ exports.update = async(req, res, next) => {
 //     res.send({message: "update handler"});
 // }
 
-exports.delete = async(req, res, next) =>{
+exports.delete = async (req, res, next) => {
     try {
         const productService = new ProductService(MongoDB.client);
         const document = await productService.delete(req.params.id);
@@ -123,7 +122,7 @@ exports.delete = async(req, res, next) =>{
         if (!document) {
             return next(new ApiError(404, "Product not found"));
         }
-        return res.send({message: "Product was deleted successfully"})
+        return res.send({ message: "Product was deleted successfully" })
     } catch (error) {
         return next(
             new ApiError(

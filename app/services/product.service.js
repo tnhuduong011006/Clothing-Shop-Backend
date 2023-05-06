@@ -40,6 +40,16 @@ class ProductService {
         return await cursor.toArray()
     }
 
+    async findIndex(textsearch) {
+
+        const cursor = await this.Product.find(
+            { $text: { $search: textsearch } },
+            { score: { $meta: "textScore" }}        // Optional starting in MongoDB 4.4
+         ).sort({ score: { $meta: "textScore" } })
+
+        return await cursor.toArray()
+    }
+
     async findByName(name) {
         return await this.find({
             name: { $regex: new RegExp(name), $options:"i"}

@@ -1,7 +1,6 @@
-// const siteRouter = require('./site')
 const productRouter = require('./product.route')
 const typeRouter = require('./type.route')
-// const userRouter = require('./user')
+const userRouter = require('./user.route')
 
 
 function route(app) {
@@ -13,10 +12,7 @@ function route(app) {
     app.use('/api/types', typeRouter)
 
     // route
-    // app.use('/users', userRouter)
-
-    // route
-    // app.use('/', siteRouter)
+    app.use('/api/users', userRouter)
 
   
 }

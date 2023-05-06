@@ -4,7 +4,7 @@ const config = {
     },
 
     db: {
-        uri: process.env.MONGODB_URI || "mongodb://0.0.0.0:27017/cosmestic_shop"
+        uri: process.env.MONGODB_URI || "mongodb://0.0.0.0:27017/gumac_shop"
         }
 
 };
